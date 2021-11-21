@@ -17,6 +17,9 @@
 *   ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 *   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
+
+
+
 #include "aes256.h"
 
 #define FD(x)  (((x) >> 1) ^ (((x) & 1) ? 0x8d : 0))
@@ -251,7 +254,7 @@ static void aes_shiftRows_inv(uint8_t *buf)
 static void aes_mixColumns(uint8_t *buf)
 {
     register uint8_t i, a, b, c, d, e;
-
+    
     for (i = 0; i < 16; i += 4)
     {
         a = buf[i];
@@ -355,6 +358,22 @@ void aes256_done(aes256_context *ctx)
 } /* aes256_done */
 
 /* -------------------------------------------------------------------------- */
+
+/* 
+    AES-256 pasa por 14 rondas de encriptación, consistente en una serie de procesos que incluyen la sustitución, 
+    trasposición y mezcla del texto plano de entrada para obtener así el texto encriptado de salida.
+    
+    Expansión de claves y AddRoundKey. Esta es la ronda que tiene que ver con las claves, y en cada caso ejecuta una operación lógica XOR con un subconjunto de la clave.
+    SubBytes. Substituye los bytes de todo el bloque para producir un valor alternativo, de una manera realmente imposible de descifrar mediante computación convencional.
+    ShiftRows. Mueve los datos de la matriz.
+    MixColumns. Aplica un XOR bit a bit y una multiplicación de matrices que lleva a un resultado final de 4 filas y 1 columna, por lo que volvemos a datos secuenciales y dejamos de tener la matriz.
+
+    Otra cuestión relevante del cálculo es de qué manera se estructura la información, 
+    pues no se hace de manera secuencial como cabría imaginarse, sino que se organiza en
+    bloques de matrices de 128 bits con 4 filas y 4 columnas.
+*/
+
+
 void aes256_encrypt_ecb(aes256_context *ctx, uint8_t *buf)
 {
     uint8_t i, rcon;
